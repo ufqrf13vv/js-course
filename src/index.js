@@ -27,9 +27,9 @@ function isAllTrue(array, fn) {
 
         if (count === array.length) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }
 
@@ -60,9 +60,9 @@ function isSomeTrue(array, fn) {
 
         if (count === 0) {
             return false;
-        } else {
-            return true;
         }
+
+        return true;
     }
 }
 
@@ -76,7 +76,6 @@ function isSomeTrue(array, fn) {
  */
 function returnBadArguments(fn) {
     let result = new Array();
-    let value;
 
     if (typeof fn !== 'function') {
         throw new Error('fn is not a function');
@@ -84,7 +83,7 @@ function returnBadArguments(fn) {
 
     for (let i = 1; i < arguments.length; i++) {
         try {
-            value = fn(arguments[i]);
+            fn(arguments[i]);
         } catch (error) {
             result.push(arguments[i]);
         }
@@ -118,12 +117,14 @@ function calculator(number = 0) {
             for (let i = 0; i < arguments.length; i++) {
                 number += arguments[i];
             }
+
             return number;
         },
         dif: function() {
             for (let i = 0; i < arguments.length; i++) {
                 number -= arguments[i];
             }
+
             return number;
         },
         div: function() {
@@ -134,15 +135,18 @@ function calculator(number = 0) {
                     number /= arguments[i];
                 }
             }
+
             return number;
         },
         mul: function() {
             for (let i = 0; i < arguments.length; i++) {
                 number *= arguments[i];
             }
+            
             return number;
         }
-    }
+    };
+
     return obj;
 }
 
