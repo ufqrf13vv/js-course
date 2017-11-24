@@ -11,12 +11,11 @@
  */
 function isAllTrue(array, fn) {
     let count = 0;
-    let y = 0;
 
     if ((array.length <= 0) || (Array.isArray(array) == false)) {
-        throw new Error("empty array");
+        throw new Error('empty array');
     } else if (typeof fn !== 'function') {
-        throw new Error("fn is not a function");
+        throw new Error('fn is not a function');
     } else {
         for (let i = 0; i < array.length; i++) {
             let result = fn(array[i]);
@@ -45,12 +44,11 @@ function isAllTrue(array, fn) {
  */
 function isSomeTrue(array, fn) {
     let count = 0;
-    let y = 0;
 
     if ((array.length <= 0) || (Array.isArray(array) == false)) {
-        throw new Error("empty array");
+        throw new Error('empty array');
     } else if (typeof fn !== 'function') {
-        throw new Error("fn is not a function");
+        throw new Error('fn is not a function');
     } else {
         for (let i = 0; i < array.length; i++) {
             let result = fn(array[i]);
@@ -81,7 +79,7 @@ function returnBadArguments(fn) {
     let value;
 
     if (typeof fn !== 'function') {
-        throw new Error("fn is not a function");
+        throw new Error('fn is not a function');
     }
 
     for (let i = 1; i < arguments.length; i++) {
