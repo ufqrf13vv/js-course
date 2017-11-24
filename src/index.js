@@ -12,7 +12,7 @@
 function isAllTrue(array, fn) {
     let count = 0;
 
-    if ((array.length <= 0) || (Array.isArray(array) == false)) {
+    if ((array.length <= 0) || ((array instanceof Array) == false)) {
         throw new Error('empty array');
     } else if (typeof fn !== 'function') {
         throw new Error('fn is not a function');
@@ -45,7 +45,7 @@ function isAllTrue(array, fn) {
 function isSomeTrue(array, fn) {
     let count = 0;
 
-    if ((array.length <= 0) || (Array.isArray(array) == false)) {
+    if ((array.length <= 0) || ((array instanceof Array) == false)) {
         throw new Error('empty array');
     } else if (typeof fn !== 'function') {
         throw new Error('fn is not a function');
@@ -142,7 +142,7 @@ function calculator(number = 0) {
             for (let i = 0; i < arguments.length; i++) {
                 number *= arguments[i];
             }
-            
+
             return number;
         }
     };
