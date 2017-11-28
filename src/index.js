@@ -96,18 +96,23 @@ function slice(array, from, to) {
     let result = [];
     let i = 0;
 
+    // если slice(0,0) - пустой массив
     if (from == 0 && to == 0) {
         return result;
+    // нач. позиция положительная
     } else if (from >= 0) {
         if (to > 0) {
+            // исключаем undefined, чтобы не было пустых элементов в массиве
             to = (to > array.length) ? array.length : to;
             for (i = from; i < to; i++) {
                 result.push(array[i]);
             }
+        //    второй аргумент отрицательный, то берем элементы до суммы длины массива и второго аргумента
         } else if (to < 0) {
             for (i = from; i < (array.length + to); i++) {
                 result.push(array[i]);
             }
+        //    если второго аргумента нет, то берём элементы со стартовой позиции до конца массива
         } else if (!to) {
             for (i = from; i < array.length; i++) {
                 result.push(array[i]);
@@ -115,11 +120,13 @@ function slice(array, from, to) {
         }
 
         return result;
+    //    первый аргумент отрицательный
     } else if (from < 0 && typeof to != 'undefined') {
         if (to > 0) {
             for (i = 0; i < to; i++) {
                 result.push(array[i]);
             }
+        //    второй аргумент отриц., то суммируем его с длиной массива
         } else if (to <= 0) {
             for (i = 0; i < (array.length + to); i++) {
                 result.push(array[i]);
@@ -128,7 +135,8 @@ function slice(array, from, to) {
 
         return result;
     }
-
+    // slice() - без параметров
+    
     return array;
 }
 
