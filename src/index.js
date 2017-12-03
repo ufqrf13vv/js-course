@@ -181,6 +181,7 @@ function collectDOMStat(root) {
 
         for (let j = 0; j < classList.length; j++) {
             let className = classList[j];
+
             if (className in classes) {
                 ++classes[className];
             } else {
