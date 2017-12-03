@@ -35,7 +35,7 @@ function createAWithHref(hrefValue) {
  * @param {Element} where - куда вставлять
  */
 function prepend(what, where) {
-    document.body.insertBefore(what, where);
+    where.insertBefore(what, where.firstChild);
 }
 
 /**
@@ -158,40 +158,47 @@ function deleteTextNodesRecursive(where) {
  * }
  */
 function collectDOMStat(root) {
-    let root1 = document.querySelector(root);
-    let children = root1.childNodes;
-    //let children = root.childNodes;
+    let children = root.getElementsByTagName('*');
+    let childNodes = root.childNodes;
+    let tags = {};
+    let classes = {};
     let countTexts = 0;
     let result = {};
 
-    function tags(element) {
-        let tag = element.nodeName;
-        let res;
+    for (let i = 0; i < children.length; i++) {
+        let tag = children[i].nodeName;
 
-        if (tag in result) {
-            ++res[tag];
+        if (tag in tags) {
+            ++tags[tag];
         } else {
-            res[tag] = 1;
+            tags[tag] = 1;
         }
-
-        return res;
-    }
-
-    function texts(element) {
-        if (element.nodeType === 3) {
-            ++countTexts;
-        }
-
-        return countTexts;
     }
 
     for (let i = 0; i < children.length; i++) {
-        var tg = tags(children[i]);
-        var tex = texts(children[i]);
+        let classesList = [];
 
-        result.tags = tg;
-        result.texts = tex;
+        classesList = children[i].classList;
+
+        classesList.forEach(function (item, i, classesList) {
+            if (item in classes) {
+                ++classes[item];
+            } else {
+                classes[item] = 1;
+            }
+        });
     }
+
+    for (let i = 0; i < childNodes.length; i++) {
+
+        if (childNodes[i].nodeType === 3) {
+            ++countTexts;
+        }
+    }
+
+    result.tags = tags;
+    result.classes = classes;
+    result.texts = countTexts;
 
     return result;
 }
@@ -228,6 +235,36 @@ function collectDOMStat(root) {
  * }
  */
 function observeChildNodes(where, fn) {
+    var target = where;
+    var info = {};
+
+    var observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            if (mutation.addedNodes.length) {
+                let elArray = [];
+
+                info.type = 'insert';
+                for (let i = 0; i < mutation.addedNodes.length; i++) {
+                    elArray.push(mutation.addedNodes[i].nodeName);
+                }
+                info.nodes = elArray;
+            } else if (mutation.removedNodes.length) {
+                info.type = 'remove';
+                info.nodes = mutation.removedNodes[0].nodeName;
+            }
+
+            fn(info);
+
+        });
+    });
+
+    var config = {
+        attributes: true,
+        childList: true,
+        characterData: true
+    };
+
+    observer.observe(target, config);
 }
 
 export {
