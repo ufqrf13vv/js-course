@@ -159,10 +159,9 @@ function deleteTextNodesRecursive(where) {
  */
 function collectDOMStat(root) {
     let children = root.getElementsByTagName('*');
-    let childNodes = root.childNodes;
+    let countTexts = 0;
     let tags = {};
     let classes = {};
-    let countTexts = 0;
     let result = {};
 
     for (let i = 0; i < children.length; i++) {
@@ -176,29 +175,37 @@ function collectDOMStat(root) {
     }
 
     for (let i = 0; i < children.length; i++) {
-        let classesList = [];
+        let classList = [];
 
-        classesList = children[i].classList;
+        classList = children[i].classList;
 
-        classesList.forEach(function (item, i, classesList) {
-            if (item in classes) {
-                ++classes[item];
+        for (let j = 0; j < classList.length; j++) {
+            let className = classList[j];
+            if (className in classes) {
+                ++classes[className];
             } else {
-                classes[item] = 1;
+                classes[className] = 1;
             }
-        });
+        }
     }
 
-    for (let i = 0; i < childNodes.length; i++) {
+    function texts(where) {
+        let childNodes = where.childNodes;
 
-        if (childNodes[i].nodeType === 3) {
-            ++countTexts;
+        for (let i = 0; i < childNodes.length; i++) {
+            if ( childNodes[i].hasChildNodes() ) {
+                texts( childNodes[i] );
+            } else if ( childNodes[i].nodeType === 3) {
+                countTexts += 1;
+            }
         }
+
+        return countTexts;
     }
 
     result.tags = tags;
     result.classes = classes;
-    result.texts = countTexts;
+    result.texts = texts(root);
 
     return result;
 }
@@ -235,23 +242,25 @@ function collectDOMStat(root) {
  * }
  */
 function observeChildNodes(where, fn) {
-    var target = where;
-    var info = {};
+    let target = where;
+    let info = {};
 
     var observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
-            if (mutation.addedNodes.length) {
-                let elArray = [];
+            let elArray = [];
 
-                info.type = 'insert';
+            if (mutation.addedNodes.length) {
                 for (let i = 0; i < mutation.addedNodes.length; i++) {
                     elArray.push(mutation.addedNodes[i].nodeName);
                 }
-                info.nodes = elArray;
+                info.type = 'insert';
             } else if (mutation.removedNodes.length) {
+                for (let i = 0; i < mutation.removedNodes.length; i++) {
+                    elArray.push(mutation.removedNodes[i].nodeName);
+                }
                 info.type = 'remove';
-                info.nodes = mutation.removedNodes[0].nodeName;
             }
+            info.nodes = elArray;
 
             fn(info);
 
@@ -259,9 +268,8 @@ function observeChildNodes(where, fn) {
     });
 
     var config = {
-        attributes: true,
         childList: true,
-        characterData: true
+        subtree: true
     };
 
     observer.observe(target, config);
