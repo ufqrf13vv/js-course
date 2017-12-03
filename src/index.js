@@ -244,27 +244,27 @@ function collectDOMStat(root) {
  */
 function observeChildNodes(where, fn) {
     let target = where;
+    let addElements = [];
+    let delElements = [];
     let info = {};
 
     var observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
-            let elArray = [];
-
             if (mutation.addedNodes.length) {
                 for (let i = 0; i < mutation.addedNodes.length; i++) {
-                    elArray.push(mutation.addedNodes[i].nodeName);
+                    addElements.push(mutation.addedNodes[i].nodeName);
                 }
                 info.type = 'insert';
+                info.nodes = addElements;
+                fn(info);
             } else if (mutation.removedNodes.length) {
                 for (let i = 0; i < mutation.removedNodes.length; i++) {
-                    elArray.push(mutation.removedNodes[i].nodeName);
+                    delElements.push(mutation.removedNodes[i].nodeName);
                 }
                 info.type = 'remove';
+                info.nodes = delElements;
+                fn(info);
             }
-            info.nodes = elArray;
-
-            fn(info);
-
         });
     });
 
