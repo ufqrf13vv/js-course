@@ -1,289 +1,88 @@
-/* ДЗ 4 - работа с DOM */
+/* ДЗ 5 - DOM Events */
 
 /**
- * Функция должна создать элемент с тегом DIV, поместить в него текстовый узел и вернуть получившийся элемент
+ * Функция должна добавлять обработчик fn события eventName к элементу target
  *
- * @param {string} text - текст, который необходимо поместить в div
- * @return {Element}
+ * @param {string} eventName - имя события, на которое нужно добавить обработчик
+ * @param {Element} target - элемент, на который нужно добавить обработчик
+ * @param {function} fn - обработчик
  */
-function createDivWithText(text) {
-    let div = document.createElement('div');
-
-    div.innerHTML = text;
-
-    return div;
+function addListener(eventName, target, fn) {
+    target.addEventListener(eventName, fn);
 }
 
 /**
- * Функция должна создать элемент с тегом A, установить значение для атрибута href и вернуть получившийся элемент
+ * Функция должна удалять обработчик fn события eventName у элемента target
  *
- * @param {string} hrefValue - значение для атрибута href
- * @return {Element}
+ * @param {string} eventName - имя события, для которого нужно удалить обработчик
+ * @param {Element} target - элемент, у которого нужно удалить обработчик
+ * @param {function} fn - обработчик
  */
-function createAWithHref(hrefValue) {
-    let link = document.createElement('a');
-
-    link.setAttribute('href', hrefValue);
-
-    return link;
+function removeListener(eventName, target, fn) {
+    target.removeEventListener(eventName, fn);
 }
 
 /**
- * Функция должна вставлять элемент what в начало элемента where
+ * Функция должна добавлять к target обработчик события eventName, который должен отменять действие по умолчанию
  *
- * @param {Element} what - что вставлять
- * @param {Element} where - куда вставлять
+ * @param {string} eventName - имя события, для которого нужно удалить обработчик
+ * @param {Element} target - элемент, на который нужно добавить обработчик
  */
-function prepend(what, where) {
-    where.insertBefore(what, where.firstChild);
+function skipDefault(eventName, target) {
+    target.addEventListener(eventName, function(event) {
+        event.preventDefault();
+    });
 }
 
 /**
- * Функция должна перебрать все дочерние элементы элемента where
- * и вернуть массив, состоящий из тех дочерних элементов
- * следующим соседом которых является элемент с тегом P
- * Рекурсия - по желанию
+ * Функция должна эмулировать событие click для элемента target
  *
- * @param {Element} where - где искать
- * @return {Array<Element>}
- *
- * @example
- * для html '<div></div><p></p><a></a><span></span><p></p>'
- * функция должна вернуть: [div, span]
- * т.к. следующим соседом этих элементов является элемент с тегом P
+ * @param {Element} target - элемент, на который нужно добавить обработчик
  */
-function findAllPSiblings(where) {
-    let children = where.children;
-    let result = [];
+function emulateClick(target) {
+    let event = new Event('click');
 
-    for (let i = 0; i < children.length; i++) {
-        let sibling = children[i].nextElementSibling;
+    target.dispatchEvent(event);
+}
 
-        if (sibling) {
-            if (children[i].nextElementSibling.nodeName === 'P') {
-                result.push(children[i]);
-            }
+/**
+ * Функция должна добавить такой обработчик кликов к элементу target
+ * который реагирует (вызывает fn) только на клики по элементам BUTTON внутри target
+ *
+ * @param {Element} target - элемент, на который нужно добавить обработчик
+ * @param {function} fn - функция, которую нужно вызвать при клике на элемент BUTTON внутри target
+ */
+function delegate(target, fn) {
+    target.addEventListener('click', function(event) {
+        let element = event.target;
+
+        if (element.tagName === 'BUTTON') {
+            fn();
         }
-    }
-
-    return result;
-}
-
-/**
- * Функция должна перебрать все дочерние узлы типа "элемент" внутри where
- * и вернуть массив, состоящий из текстового содержимого перебираемых элементов
- * Но похоже, что в код закралась ошибка, которую нужно найти и исправить
- *
- * @param {Element} where - где искать
- * @return {Array<string>}
- */
-function findError(where) {
-    var result = [];
-
-    for (var i = 0; i < where.childNodes.length; i++) {
-        if (where.childNodes[i].nodeType === 1) {
-            result.push(where.childNodes[i].innerText);
-        }
-    }
-
-    return result;
-}
-
-/**
- * Функция должна перебрать все дочерние узлы элемента where
- * и удалить из него все текстовые узлы
- * Без рекурсии!
- * Будьте внимательны при удалении узлов,
- * можно получить неожиданное поведение при переборе узлов
- *
- * @param {Element} where - где искать
- *
- * @example
- * после выполнения функции, дерево <div></div>привет<p></p>loftchool!!!
- * должно быть преобразовано в <div></div><p></p>
- */
-function deleteTextNodes(where) {
-    let children = where.childNodes;
-
-    for (let i = 0; i < children.length; i++) {
-        if (children[i].nodeType === 3) {
-            children[i].parentNode.removeChild(children[i]);
-        }
-    }
-}
-
-/**
- * Выполнить предудыщее задание с использование рекурсии
- * то есть необходимо заходить внутрь каждого дочернего элемента
- *
- * @param {Element} where - где искать
- *
- * @example
- * после выполнения функции, дерево <span> <div> <b>привет</b> </div> <p>loftchool</p> !!!</span>
- * должно быть преобразовано в <span><div><b></b></div><p></p></span>
- */
-function deleteTextNodesRecursive(where) {
-    let children = where.childNodes;
-
-    for (let i = 0; i < children.length; i++) {
-        if (children[i].nodeType === 3) {
-            where.removeChild(children[i]);
-            i--;
-        } else if (children[i].nodeType === 1) {
-            deleteTextNodesRecursive(children[i]);
-        }
-    }
+    });
 }
 
 /**
  * *** Со звездочкой ***
- * Необходимо собрать статистику по всем узлам внутри элемента root и вернуть ее в виде объекта
- * Статистика должна содержать:
- * - количество текстовых узлов
- * - количество элементов каждого класса
- * - количество элементов каждого тега
- * Для работы с классами рекомендуется использовать свойство classList
+ * Функция должна добавить такой обработчик кликов к элементу target
+ * который сработает только один раз и удалится
  * Постарайтесь не создавать глобальных переменных
  *
- * @param {Element} root - где собирать статистику
- * @return {{tags: Object<string, number>, classes: Object<string, number>, texts: number}}
- *
- * @example
- * для html <div class="some-class-1"><b>привет!</b> <b class="some-class-1 some-class-2">loftschool</b></div>
- * должен быть возвращен такой объект:
- * {
- *   tags: { DIV: 1, B: 2},
- *   classes: { "some-class-1": 2, "some-class-2": 1 },
- *   texts: 3
- * }
+ * @param {Element} target - элемент, на который нужно добавить обработчик
+ * @param {function} fn - обработчик
  */
-function collectDOMStat(root) {
-    let children = root.getElementsByTagName('*');
-    let countTexts = 0;
-    let tags = {};
-    let classes = {};
-    let result = {};
-
-    for (let i = 0; i < children.length; i++) {
-        let tag = children[i].nodeName;
-
-        if (tag in tags) {
-            ++tags[tag];
-        } else {
-            tags[tag] = 1;
-        }
-    }
-
-    for (let i = 0; i < children.length; i++) {
-        let classList = [];
-
-        classList = children[i].classList;
-
-        for (let j = 0; j < classList.length; j++) {
-            let className = classList[j];
-
-            if (className in classes) {
-                ++classes[className];
-            } else {
-                classes[className] = 1;
-            }
-        }
-    }
-
-    function texts(where) {
-        let childNodes = where.childNodes;
-
-        for (let i = 0; i < childNodes.length; i++) {
-            if ( childNodes[i].hasChildNodes() ) {
-                texts( childNodes[i] );
-            } else if ( childNodes[i].nodeType === 3) {
-                countTexts += 1;
-            }
-        }
-
-        return countTexts;
-    }
-
-    result.tags = tags;
-    result.classes = classes;
-    result.texts = texts(root);
-
-    return result;
-}
-
-/**
- * *** Со звездочкой ***
- * Функция должна отслеживать добавление и удаление элементов внутри элемента where
- * Как только в where добавляются или удаляются элемента,
- * необходимо сообщать об этом при помощи вызова функции fn со специальным аргументом
- * В качестве аргумента должен быть передан объек с двумя свойствами:
- * - type: типа события (insert или remove)
- * - nodes: массив из удаленных или добавленных элементов (а зависимости от события)
- * Отслеживание должно работать вне зависимости от глубины создаваемых/удаляемых элементов
- * Рекомендуется использовать MutationObserver
- *
- * @param {Element} where - где отслеживать
- * @param {function(info: {type: string, nodes: Array<Element>})} fn - функция, которую необходимо вызвать
- *
- * @example
- * если в where или в одного из его детей добавляется элемент div
- * то fn должна быть вызвана с аргументов:
- * {
- *   type: 'insert',
- *   nodes: [div]
- * }
- *
- * ------
- *
- * если из where или из одного из его детей удаляется элемент div
- * то fn должна быть вызвана с аргументов:
- * {
- *   type: 'remove',
- *   nodes: [div]
- * }
- */
-function observeChildNodes(where, fn) {
-    let target = where;
-    let addElements = [];
-    let delElements = [];
-    let info = {};
-
-    var observer = new MutationObserver(function (mutations) {
-        mutations.forEach(function (mutation) {
-            if (mutation.addedNodes.length) {
-                for (let i = 0; i < mutation.addedNodes.length; i++) {
-                    addElements.push(mutation.addedNodes[i].nodeName);
-                }
-                info.type = 'insert';
-                info.nodes = addElements;
-                fn(info);
-            } else if (mutation.removedNodes.length) {
-                for (let i = 0; i < mutation.removedNodes.length; i++) {
-                    delElements.push(mutation.removedNodes[i].nodeName);
-                }
-                info.type = 'remove';
-                info.nodes = delElements;
-                fn(info);
-            }
-        });
+function once(target, fn) {
+    target.addEventListener('click', function click() {
+        fn();
+        target.removeEventListener('click', click);
     });
-
-    var config = {
-        childList: true,
-        subtree: true
-    };
-
-    observer.observe(target, config);
 }
 
 export {
-    createDivWithText,
-    createAWithHref,
-    prepend,
-    findAllPSiblings,
-    findError,
-    deleteTextNodes,
-    deleteTextNodesRecursive,
-    collectDOMStat,
-    observeChildNodes
+    addListener,
+    removeListener,
+    skipDefault,
+    emulateClick,
+    delegate,
+    once
 };
