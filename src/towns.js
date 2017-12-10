@@ -39,33 +39,24 @@ function loadTowns() {
     return new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
 
-        xhr.open('GET', 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json1');
+        xhr.open('GET', 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json');
         xhr.responseType = 'json';
 
-        xhr.onload = function() {
+        xhr.onload = () => {
             if (xhr.status === 200) {
-                resolve(xhr.response);
+                resolve(xhr.response.sort((a, b) => {
+                    if (a.name > b.name) {
+                        return 1;
+                    }
+                    if (a.name < b.name) {
+                        return -1;
+                    }
+                }));
             } else {
-                reject(Error('Image didn\'t load successfully; error code:'
-                    + xhr.status));
+                reject();
             }
         };
-        xhr.onerror = function() {
-            reject(Error('There was a network error.'));
-        };
         xhr.send();
-        //xhr.addEventListener('load', () => {
-        //    loadingBlock.style.display = 'block';
-        //
-        //    resolve(xhr.response.sort(function(a, b) {
-        //        if (a.name > b.name) {
-        //            return 1;
-        //        }
-        //        if (a.name < b.name) {
-        //            return -1;
-        //        }
-        //    }));
-        //});
     });
 }
 
@@ -83,29 +74,59 @@ function loadTowns() {
  * @return {boolean}
  */
 function isMatching(full, chunk) {
-    (full.toLowerCase().indexOf(chunk.toLowerCase()) !== -1) ? true : false;
+    if (full.toLowerCase().indexOf(chunk.toLowerCase()) != -1) {
+        return true;
+    }
+
+    return false;
 }
 
 let loadingBlock = homeworkContainer.querySelector('#loading-block');
 let filterBlock = homeworkContainer.querySelector('#filter-block');
 let filterInput = homeworkContainer.querySelector('#filter-input');
 let filterResult = homeworkContainer.querySelector('#filter-result');
-let townsPromise;
+let repeatButton = document.createElement('button');
+let errorBlock = document.createElement('div');
+let resolve = (result) => {
+    towns = result;
+    loadingBlock.style.display = 'none';
+    filterBlock.style.display = 'block';
+};
+let error = () => {
+    loadingBlock.style.display = 'none';
+    errorBlock.textContent = 'Не удалось загрузить города';
+    repeatButton.textContent = 'Повторить';
+    homeworkContainer.appendChild(errorBlock);
+    homeworkContainer.appendChild(repeatButton);
+};
+let towns = [];
 
 loadTowns()
-    .then(function (result) {
-        loadingBlock.style.display = 'none';
-        filterBlock.style.display = 'block';
-        //filterResult.innerHTML = result;
-    },
-    function (error) {
-        console.log(error);
-    });
+    .then(resolve)
+    .catch(error);
 
-filterInput.addEventListener('keyup', function() {
+repeatButton.addEventListener('click', () => {
+    loadingBlock.style.display = 'block';
+    loadTowns()
+        .then(resolve)
+        .catch(error);
 });
 
-//export {
-//    loadTowns,
-//    isMatching
-//};
+filterInput.addEventListener('keyup', () => {
+    filterResult.textContent = '';
+
+    if (!filterInput.value) {
+        filterResult.textContent = '';
+    } else {
+        towns.forEach((item) => {
+            if (isMatching(item.name, filterInput.value.trim())) {
+                filterResult.innerHTML += item.name + '<br>';
+            }
+        });
+    }
+});
+
+export {
+    loadTowns,
+    isMatching
+};
