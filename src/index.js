@@ -32,16 +32,18 @@ function loadAndSortTowns() {
         xhr.send();
 
         xhr.addEventListener('load', () => {
-            resolve(xhr.response.sort(function(a, b) {
-                if (a.name > b.name) {
-                    return 1;
-                }
-                if (a.name < b.name) {
-                    return -1;
-                }
-            }));
+            resolve(xhr.response.sort(sortArray));
         });
     });
+}
+
+export default function sortArray(a, b) {
+    if (a.name > b.name) {
+        return 1;
+    }
+    if (a.name < b.name) {
+        return -1;
+    }
 }
 
 export {

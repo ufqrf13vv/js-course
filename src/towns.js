@@ -20,6 +20,8 @@
  * При клике на кнопку, процесс загруки повторяется заново
  */
 
+import sortArray from './index';
+
 /**
  * homeworkContainer - это контейнер для всех ваших домашних заданий
  * Если вы создаете новые html-элементы и добавляете их на страницу, то дабавляйте их только в этот контейнер
@@ -44,14 +46,7 @@ function loadTowns() {
 
         xhr.onload = () => {
             if (xhr.status === 200) {
-                resolve(xhr.response.sort((a, b) => {
-                    if (a.name > b.name) {
-                        return 1;
-                    }
-                    if (a.name < b.name) {
-                        return -1;
-                    }
-                }));
+                resolve(xhr.response.sort(sortArray));
             } else {
                 reject();
             }
