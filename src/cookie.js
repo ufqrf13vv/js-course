@@ -25,13 +25,8 @@
  * Запрещено использовать сторонние библиотеки. Разрешено пользоваться только тем, что встроено в браузер
  */
 
-//import { createCookie, deleteCookie } from './index';
-function deleteCookie(name) {
-    let cookieDate = new Date();
+import { createCookie, deleteCookie } from './index';
 
-    cookieDate.setTime(cookieDate.getTime() - 1);
-    document.cookie = name + '=; expires=' + cookieDate.toGMTString();
-}
 /**
  * homeworkContainer - это контейнер для всех ваших домашних заданий
  * Если вы создаете новые html-элементы и добавляете их на страницу, то дабавляйте их только в этот контейнер
@@ -86,10 +81,6 @@ function getCookieArray() {
     return cookies.split('; ');
 }
 
-function createCookie(name, value) {
-    document.cookie = name + '=' + value;
-}
-
 //  Вывод списка кук, соответствующих поисковому запросу
 function getCookies(getArray) {
     let cookieArray;
@@ -112,7 +103,13 @@ function getCookies(getArray) {
     }, {});
 
     for (key in result) {
-        listTable.innerHTML += '<tr><td>' + key + '</td><td>' + result[key] + '</td><td><button class="remove" data-name="' + key + '">Удалить</button></td></tr>';
+        if (result.hasOwnProperty(key)) {
+            listTable.innerHTML += '<tr>' +
+                '<td>' + key + '</td>' +
+                '<td>' + result[key] + '</td>' +
+                '<td><button class="remove" data-name="' + key + '">Удалить</button></td>' +
+                '</tr>';
+        }
     }
 }
 
@@ -129,5 +126,5 @@ listTable.onclick = (event) => {
     let cookieName = event.target.getAttribute('data-name');
 
     deleteCookie(cookieName);
-    getCookies();
+    event.target.parentElement.parentElement.remove();
 };
